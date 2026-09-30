@@ -1,0 +1,71 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "markitdown"
+dynamic = ["version"]
+description = 'Utility tool for converting various files to Markdown with audio/video transcription and OCR'
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Adam Fourney", email = "adamfo@microsoft.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: Implementation :: CPython",
+]
+dependencies = [
+  "beautifulsoup4",
+  "requests",
+  "markdownify",
+  "magika~=0.6.1",
+  "charset-normalizer",
+  "defusedxml",
+]
+
+[project.optional-dependencies]
+all = [
+  "python-pptx",
+  "mammoth~=1.11.0",
+  "pandas",
+  "openpyxl",
+  "xlrd",
+  "lxml",
+  "pdfminer.six",
+  "pdfplumber",
+  "olefile",
+  "pydub",
+  "SpeechRecognition",
+  "faster-whisper",
+  "opencv-python",
+  "rapidocr-onnxruntime",
+  "youtube-transcript-api",
+]
+pptx = ["python-pptx"]
+docx = ["mammoth~=1.11.0", "lxml"]
+xlsx = ["pandas", "openpyxl"]
+xls = ["pandas", "xlrd"]
+pdf = ["pdfminer.six", "pdfplumber"]
+outlook = ["olefile"]
+audio-transcription = ["pydub", "SpeechRecognition", "faster-whisper"]
+video-transcription = ["pydub", "SpeechRecognition", "faster-whisper", "opencv-python"]
+ocr = ["rapidocr-onnxruntime", "pillow"]
+
+[project.urls]
+Documentation = "https://github.com/microsoft/markitdown#readme"
+Issues = "https://github.com/microsoft/markitdown/issues"
+Source = "https://github.com/microsoft/markitdown"
+
+[tool.hatch.version]
+path = "src/markitdown/__about__.py"
+
+[project.scripts]
+markitdown = "markitdown.__main__:main"

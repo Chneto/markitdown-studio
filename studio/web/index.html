@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarkItDown Studio v0.2.0 - Conversor Universal de Documentos, Vídeos e Áudios para Markdown</title>
+    <!-- Favicon SVG -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b82f6'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/><line x1='16' y1='13' x2='8' y2='13'/><line x1='16' y1='17' x2='8' y2='17'/><polyline points='10 9 9 9 8 9'/></svg>">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Eel Core Bridge -->
+    <script type="text/javascript" src="/eel.js"></script>
+    <!-- Standalone Markdown Parser -->
+    <script src="js/marked.min.js"></script>
+</head>
+<body>
+
+    <!-- Inputs Ocultos do Navegador para Seleção Rápida e Compatível -->
+    <input type="file" id="html5FileInput" multiple style="display: none;" accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.tsv,.pptx,.ppt,.html,.htm,.epub,.json,.xml,.zip,.mp3,.wav,.m4a,.ogg,.flac,.aac,.wma,.mp4,.mkv,.avi,.mov,.webm,.flv,.wmv,.m4v,.jpg,.jpeg,.png,.webp,.bmp,.txt,.msg,*">
+    <input type="file" id="html5FolderInput" webkitdirectory directory multiple style="display: none;">
+
+    <!-- Header Principal -->
+    <header class="app-header">
+        <div class="header-brand">
+            <div class="brand-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+            </div>
+            <div class="brand-title">
+                MarkItDown Studio
+                <span class="brand-version" id="studioVersion">v0.2.0</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="status-badge" id="systemStatus" title="Status dos Motores Ativos">
+                <span class="status-dot"></span>
+                <span id="speechEngineStatus">Whisper & OCR Ativos</span>
+            </div>
+
+            <!-- Botão Alternador de Tema -->
+            <button class="btn-icon-toggle" id="themeToggleBtn" title="Alternar Tema (Claro / Escuro)">
+                <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Barra de Configuração de Destino -->
+    <section class="destination-bar">
+        <div class="destination-info">
+            <span class="destination-label">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                Salvar arquivos .md em:
+            </span>
+            <input type="text" class="destination-input" id="outputDirPathInput" placeholder="C:\Caminho\Para\Salvar\Arquivos" spellcheck="false">
+        </div>
+
+        <div class="destination-controls">
+            <button class="btn btn-secondary btn-sm" id="btnSelectOutputDir" title="Abrir janela para escolher a pasta de destino">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                Alterar Pasta
+            </button>
+
+            <button class="btn btn-secondary btn-sm" id="btnOpenOutputDir" title="Abrir pasta de destino no Windows Explorer">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+                Abrir no Explorer
+            </button>
+        </div>
+    </section>
+
+    <!-- Conteúdo Principal -->
+    <main class="app-main">
+
+        <!-- Painel Esquerdo: Fila de Arquivos & Upload -->
+        <section class="pane-queue">
+
+            <!-- Zona de Drag and Drop -->
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                </div>
+                <div class="drop-zone-title">Arraste seus vídeos, áudios e documentos aqui</div>
+                <div class="drop-zone-subtitle">Conversão direta em Markdown com transcrição temporal e OCR de alta fidelidade</div>
+                
+                <div class="drop-zone-buttons">
+                    <button class="btn btn-primary" id="btnSelectFiles">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Selecionar Arquivos
+                    </button>
+                    <button class="btn btn-secondary" id="btnSelectFolder">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        Selecionar Pasta
+                    </button>
+                </div>
+
+                <div class="drop-zone-tags">
+                    <span class="tag-badge tag-video">🎬 VÍDEO (MP4, MKV, AVI, MOV, WEBM)</span>
+                    <span class="tag-badge tag-audio">🎙️ ÁUDIO (MP3, WAV, M4A, OGG, FLAC)</span>
+                    <span class="tag-badge">PDF & SCAN (OCR)</span>
+                    <span class="tag-badge">DOCX & PPTX</span>
+                    <span class="tag-badge">XLSX & CSV</span>
+                    <span class="tag-badge">HTML & EPUB</span>
+                    <span class="tag-badge">IMAGENS</span>
+                </div>
+            </div>
+
+            <!-- Seção da Fila de Conversão -->
+            <div class="queue-section">
+                <div class="queue-header">
+                    <div class="queue-title">
+                        <span>Fila de Conversão</span>
+                        <span class="queue-count" id="queueCounters">0 pendentes</span>
+                    </div>
+
+                    <div class="queue-actions">
+                        <button class="btn btn-secondary btn-sm" id="btnClearCompleted" title="Remover itens concluídos da lista">
+                            Limpar Concluídos
+                        </button>
+                        <button class="btn btn-danger-ghost btn-sm" id="btnClearAll" title="Limpar todos os arquivos da fila">
+                            Limpar Tudo
+                        </button>
+                        <button class="btn btn-success" id="btnConvertAll">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            Converter Todos
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Barra de Progresso do Lote -->
+                <div class="queue-progress-bar-container" id="progressBarContainer">
+                    <div class="queue-progress-bar" id="progressBar"></div>
+                </div>
+
+                <!-- Lista de Itens na Fila -->
+                <div class="queue-list" id="queueList">
+                    <div class="queue-empty-state" id="queueEmptyState">
+                        Nenhum arquivo adicionado ainda. Arraste arquivos para a área acima ou clique em "Selecionar Arquivos".
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Painel Direito: Inspetor, Pré-Visualizador de Markdown e Diagnóstico -->
+        <section class="pane-inspector">
+            
+            <div class="inspector-header">
+                <div class="inspector-title-area">
+                    <span class="file-ext-badge ext-data" id="inspectorExtBadge">MD</span>
+                    <div class="inspector-title" id="inspectorFileName">Nenhum documento selecionado</div>
+                </div>
+
+                <div class="inspector-tabs" id="inspectorTabsGroup" style="display: none;">
+                    <button class="tab-btn active" id="tabFormattedBtn">Visualização Formatada</button>
+                    <button class="tab-btn" id="tabRawBtn">Código Markdown</button>
+                </div>
+            </div>
+
+            <div class="inspector-actions" id="inspectorActionsBar" style="display: none;">
+                <div class="inspector-stats" id="inspectorStats">
+                    <span id="statWords">0 palavras</span>
+                    <span>•</span>
+                    <span id="statChars">0 caracteres</span>
+                    <span>•</span>
+                    <span id="statSize">0 KB</span>
+                    <span>•</span>
+                    <span id="statDuration">0s</span>
+                </div>
+
+                <div class="inspector-btn-group">
+                    <button class="btn btn-secondary btn-sm" id="btnCopyMarkdown" title="Copiar Markdown para a área de transferência">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        Copiar
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="btnOpenInExplorer" title="Mostrar arquivo .md no Windows Explorer">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                        No Explorer
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="btnOpenDefaultApp" title="Abrir arquivo no editor padrão">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        Abrir Editor
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="btnSaveEdits" title="Salvar edições feitas no texto Markdown" style="display: none;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        Salvar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Área de Conteúdo do Inspetor -->
+            <div class="inspector-content" id="inspectorContent">
+                <!-- Estado Vazio -->
+                <div class="inspector-empty" id="inspectorEmptyState">
+                    <svg class="inspector-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 4px;">Nenhum documento selecionado</div>
+                        <div style="font-size: 0.82rem;">Adicione arquivos e execute a conversão para visualizar a estrutura e transcrição em Markdown.</div>
+                    </div>
+                </div>
+
+                <!-- Painel Renderizado -->
+                <div class="rendered-markdown" id="formattedView" style="display: none;"></div>
+
+                <!-- Editor de Código Markdown Puro -->
+                <textarea class="raw-markdown-editor" id="rawView" style="display: none;" spellcheck="false" placeholder="Código Markdown aparecerá aqui..."></textarea>
+
+                <!-- Painel de Diagnóstico de Erros -->
+                <div class="diagnostic-container" id="diagnosticView" style="display: none;"></div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Rodapé Técnico com Informações do Sistema -->
+    <footer style="display: flex; justify-content: space-between; align-items: center; padding: 6px 16px; background: var(--bg-surface); border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--text-muted);">
+        <div style="display: flex; gap: 14px;">
+            <span id="sysOs">Windows</span>
+            <span>•</span>
+            <span id="sysPython">Python 3.13</span>
+            <span>•</span>
+            <span id="sysOcr">OCR: RapidOCR</span>
+            <span>•</span>
+            <span id="sysSpeech">Speech: Whisper</span>
+        </div>
+        <div>
+            <span>MarkItDown Studio &copy; 2026</span>
+        </div>
+    </footer>
+
+    <!-- Container de Toasts de Notificação -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Script Principal da Aplicação -->
+    <script src="js/app.js"></script>
+</body>
+</html>
